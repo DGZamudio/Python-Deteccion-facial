@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Response, UploadFile
+from fastapi import FastAPI, File, Response, UploadFile, HTTPException
 import cv2
 import numpy as np
 import uuid
@@ -13,7 +13,11 @@ os.makedirs("resultados", exist_ok=True)
 
 @app.post('/detectar-rostros')
 async def detectar_rostros(file: UploadFile = File(...)):
-    contents = await file.read()
+    try:
+        contents = await file.read()
+    except:
+        HTTPException(400, "Error al decodificar la imagten, imagen no cargada o invalida")
+        
     npimg = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR) 
 
@@ -21,7 +25,7 @@ async def detectar_rostros(file: UploadFile = File(...)):
 
     faces = face_cascade.detectMultiScale(
         gray,
-        scaleFactor=1.5,   
+        scaleFactor=1.15,   
         minNeighbors=3,    
         minSize=(30, 30) 
     )
