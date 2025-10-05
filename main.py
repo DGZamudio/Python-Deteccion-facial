@@ -21,7 +21,7 @@ async def detectar_rostros(file: UploadFile = File(...)):
 
     faces = face_cascade.detectMultiScale(
         gray,
-        scaleFactor=1.05,   
+        scaleFactor=1.5,   
         minNeighbors=3,    
         minSize=(30, 30) 
     )
