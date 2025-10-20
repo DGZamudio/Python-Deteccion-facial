@@ -1,4 +1,7 @@
 opencv-python
+tf-keras
+deepface
 fastapi 
 uvicorn
+numpy
 python-multipart
