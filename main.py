@@ -33,6 +33,7 @@ def cargar_diccionario():
 # Cargar una sola vez al inicio
 try:
     NOMBRES = cargar_diccionario()
+    MODEL = DeepFace.build_model("Facenet")
     print(f"✅ Diccionario cargado con {len(NOMBRES)} jugadores.")
 except Exception as e:
     print(f"⚠️ No se pudo cargar el diccionario: {e}")
@@ -55,7 +56,13 @@ def reconocer_persona(img):
 
         path_referencia = os.path.join(DATASET_PATH, archivo)
         try:
-            resultado = DeepFace.verify(img1_path=img, img2_path=path_referencia, enforce_detection=False)
+            resultado = DeepFace.verify(
+                img1_path=img,
+                img2_path=path_referencia,
+                enforce_detection=False,
+                model_name="Facenet",
+                model=MODEL
+            )
             distancia = resultado["distance"]
 
             if distancia < mejor_distancia:
