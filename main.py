@@ -33,7 +33,7 @@ def cargar_diccionario():
 # Cargar una sola vez al inicio
 try:
     NOMBRES = cargar_diccionario()
-    MODEL = DeepFace.build_model("Facenet")
+    MODEL = DeepFace.build_model("ArcFace")
     print(f"✅ Diccionario cargado con {len(NOMBRES)} jugadores.")
 except Exception as e:
     print(f"⚠️ No se pudo cargar el diccionario: {e}")
@@ -49,6 +49,7 @@ def reconocer_persona(img):
 
     mejor_resultado = None
     mejor_distancia = 1.0  # cuanto menor, mejor
+    encontrado = False
 
     for archivo in os.listdir(DATASET_PATH):
         if not archivo.lower().endswith((".jpg", ".jpeg", ".png")):
@@ -60,24 +61,26 @@ def reconocer_persona(img):
                 img1_path=img,
                 img2_path=path_referencia,
                 enforce_detection=False,
-                model_name="Facenet",
-                model=MODEL
+                model_name="ArcFace",  # mejor precisión
             )
             distancia = resultado["distance"]
 
             if distancia < mejor_distancia:
                 mejor_distancia = distancia
                 mejor_resultado = os.path.splitext(archivo)[0]
-        except Exception:
-            continue
+                encontrado = True
+        except Exception as e:
+            print("Error comparando", archivo, e)
 
-    if mejor_resultado and mejor_distancia < 0.35:
-        # Buscar el nombre real desde el CSV
+    # Umbral correcto para ArcFace
+    UMBRAL = 0.65
+
+    if encontrado and mejor_distancia < UMBRAL:
         nombre_real = NOMBRES.get(mejor_resultado.lower(), mejor_resultado)
         return nombre_real, mejor_distancia
     else:
-        return "Desconocido", None
-
+        # Si no se encontró nadie, devolvemos "Desconocido" y la distancia más baja encontrada
+        return "Desconocido", mejor_distancia
 
 # ---------------------------------------------------------
 # Endpoint principal

@@ -5,6 +5,7 @@ import os
 import csv
 import random
 import time
+from PIL import Image
 
 # === CONFIGURACIÓN ===
 csv_file = "players.csv"
@@ -18,6 +19,20 @@ HEADERS_LIST = [
 ]
 
 # === FUNCIONES ===
+def mejorar_resolucion(path, tamaño=(224, 224)):
+    """
+    Redimensiona la imagen a tamaño fijo.
+    ArcFace y Facenet funcionan bien con 112x112 o 224x224.
+    """
+    try:
+        img = Image.open(path).convert("RGB")
+        img = img.resize(tamaño, Image.LANCZOS)  # LANCZOS = buena calidad
+        img.save(path)
+        return True
+    except Exception as e:
+        print(f"⚠️ No se pudo mejorar la imagen {path}: {e}")
+        return False
+
 def get_wikipedia_image(player_name: str):
     """Intenta obtener la imagen del jugador desde Wikipedia."""
     query = requests.utils.quote(f"{player_name} basketball player")
@@ -46,7 +61,7 @@ def get_wikipedia_image(player_name: str):
 
 def get_google_image(player_name: str):
     """Fallback: busca imagen del jugador en Google (primer resultado real)."""
-    query = requests.utils.quote(f"{player_name} basketball player")
+    query = requests.utils.quote(f"{player_name} basketball player face portrait")
     url = f"https://www.google.com/search?q={query}&tbm=isch"
     headers = random.choice(HEADERS_LIST)
 
@@ -122,6 +137,7 @@ if __name__ == "__main__":
             save_path = os.path.join(images_dir, filename)
 
             if download_image(img_url, save_path):
+                mejorar_resolucion(save_path)
                 writer.writerow([name, save_path])
                 done.add(name)
 
