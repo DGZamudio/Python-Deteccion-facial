@@ -14,6 +14,7 @@ NAMES_PATH = "players.csv"
 # ---------------------------------------------------------
 # Cargar diccionario desde el CSV (archivo_nombre → nombre)
 # ---------------------------------------------------------
+
 def cargar_diccionario():
     dic = {}
     if not os.path.exists(NAMES_PATH):
@@ -26,14 +27,16 @@ def cargar_diccionario():
             nombre_real = row["nombre_csv"]
             # extraer nombre del archivo sin extensión (para comparar)
             nombre_archivo = os.path.splitext(os.path.basename(ruta))[0]
-            dic[nombre_archivo.lower()] = nombre_real
+            # reemplazar "_" por espacio y pasar a minúsculas
+            clave = nombre_archivo.lower().replace("_", " ")
+            dic[clave] = nombre_real
     return dic
 
 
 # Cargar una sola vez al inicio
 try:
     NOMBRES = cargar_diccionario()
-    MODEL = DeepFace.build_model("ArcFace")
+    MODEL = DeepFace.build_model("Facenet")
     print(f"✅ Diccionario cargado con {len(NOMBRES)} jugadores.")
 except Exception as e:
     print(f"⚠️ No se pudo cargar el diccionario: {e}")
@@ -61,7 +64,7 @@ def reconocer_persona(img):
                 img1_path=img,
                 img2_path=path_referencia,
                 enforce_detection=False,
-                model_name="ArcFace",  # mejor precisión
+                model_name="Facenet",  # mejor precisión
             )
             distancia = resultado["distance"]
 
@@ -76,7 +79,7 @@ def reconocer_persona(img):
     UMBRAL = 0.65
 
     if encontrado and mejor_distancia < UMBRAL:
-        nombre_real = NOMBRES.get(mejor_resultado.lower(), mejor_resultado)
+        nombre_real = NOMBRES.get(mejor_resultado.lower().replace("_", " "), mejor_resultado)
         return nombre_real, mejor_distancia
     else:
         # Si no se encontró nadie, devolvemos "Desconocido" y la distancia más baja encontrada
