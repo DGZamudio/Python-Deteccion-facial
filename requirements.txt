@@ -1,7 +1,9 @@
 opencv-python
-tf-keras
-deepface
+sentence-transformers
+torch
+torchvision
+psycopg2-binary
+numpy
 fastapi 
 uvicorn
-numpy
 python-multipart
