@@ -1,7 +1,5 @@
-opencv-python
+opencv-python-headless
 sentence-transformers
-torch
-torchvision
 psycopg2-binary
 numpy
 fastapi 
